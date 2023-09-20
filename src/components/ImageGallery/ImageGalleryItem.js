@@ -18,7 +18,7 @@ export const ImageGalleryItem = ({ element }) => {
         <img
           src={element.webformatURL}
           width={'50px'}
-          alt={`Image: ${element.tags}`}
+          alt={`${element.tags}`}
           className="ImageGalleryItem-image"
         />
       </li>
