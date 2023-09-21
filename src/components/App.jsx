@@ -20,13 +20,12 @@ export class App extends Component {
     if (
       prevState.page !== this.state.page ||
       prevState.query !== this.state.query
-      // prevState.images !== this.state.images
     ) {
       this.setState({ loading: true });
       try {
         const request = this.state.query.split('/// ');
         const arrayImage = await searchImages(request[1], this.state.page);
-        if (this.state.images == '') {
+        if (this.state.images.length === 0) {
           this.setState({
             images: [...arrayImage],
           });
