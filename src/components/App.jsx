@@ -16,40 +16,54 @@ export class App extends Component {
     error: false,
   };
 
-  onSubmit = async line => {
-    // console.log(line);
-    // Проверка на предыдущую вводимость
-    // console.log(this.state.query.endsWith(`/ ${line}`));
-    try {
+  componentDidUpdate = async (prevProps, prevState) => {
+    if (
+      prevState.page !== this.state.page ||
+      prevState.query !== this.state.query
+      // prevState.images !== this.state.images
+    ) {
       this.setState({ loading: true });
-      const arrayImage = await searchImages(line, 1);
-      this.setState({
-        query: `${Date.now()} /// ${line}`,
-        page: 1,
-        images: arrayImage,
-      });
-    } catch (error) {
-      this.setState({ error: true });
-      console.error('An error occurred:', error);
-    } finally {
-      this.setState({ loading: false });
+      try {
+        const request = this.state.query.split('/// ');
+        const arrayImage = await searchImages(request[1], this.state.page);
+        if (this.state.images == '') {
+          this.setState({
+            images: [...arrayImage],
+          });
+        } else {
+          this.setState({
+            images: [...prevState.images, ...arrayImage],
+          });
+        }
+      } catch (error) {
+        this.setState({ error: true });
+        console.error('An error occurred:', error);
+      } finally {
+        this.setState({ loading: false });
+      }
+    }
+  };
+
+  onSubmit = async line => {
+    if (line !== '') {
+      this.setState(
+        {
+          query: `${Date.now()} /// ${line}`,
+          page: 1,
+          images: [],
+        },
+        () => {
+          // Я работаю на Chrome и Opera. И без этого метода в Опере скролл не уходит на верх
+          window.scrollTo(0, 0);
+        }
+      );
     }
   };
 
   addElements = async () => {
-    this.setState({ loading: true });
-    const request = this.state.query.split('///');
-    try {
-      const arrayImage = await searchImages(request[1], this.state.page + 1);
-      this.setState(prevState => ({
-        page: prevState.page + 1,
-        images: [...prevState.images, ...arrayImage],
-        loading: false,
-      }));
-    } catch (error) {
-      this.setState({ error: true, loading: false });
-      console.error('An error occurred:', error);
-    }
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
   };
 
   render() {
@@ -77,7 +91,6 @@ export class App extends Component {
             ERROR! :c
           </div>
         )}
-        {/* <Modal /> */}
       </div>
     );
   }
